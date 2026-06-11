@@ -1,0 +1,124 @@
+# Crude assays, simplified to a common 6-cut schema (+ loss).
+# Yields are volume fractions and must sum to 1.0.
+# Sources: public assay libraries (Equinor, ExxonMobil, BP) -- values here are
+# APPROXIMATE and ILLUSTRATIVE; see README for the honest list of simplifications.
+# diff_usd_bbl: static differential vs the benchmark futures curve (editable in-app).
+
+bonny_light:
+  name: "Bonny Light"
+  api: 35.3
+  sulfur_pct: 0.15
+  benchmark: brent
+  diff_usd_bbl: 0.50
+  fob_port: bonny
+  yields:
+    lpg: 0.03
+    naphtha: 0.22
+    kero: 0.16
+    diesel: 0.31
+    vgo: 0.20
+    residue: 0.07
+    loss: 0.01
+  diesel_sulfur_pct: 0.08
+
+wti_midland:
+  name: "WTI Midland"
+  api: 42.0
+  sulfur_pct: 0.20
+  benchmark: wti
+  diff_usd_bbl: 0.40
+  fob_port: corpus_christi
+  yields:
+    lpg: 0.04
+    naphtha: 0.30
+    kero: 0.14
+    diesel: 0.27
+    vgo: 0.17
+    residue: 0.07
+    loss: 0.01
+  diesel_sulfur_pct: 0.05
+
+forties:
+  name: "Forties Blend"
+  api: 40.3
+  sulfur_pct: 0.60
+  benchmark: brent
+  diff_usd_bbl: -0.10
+  fob_port: hound_point
+  yields:
+    lpg: 0.03
+    naphtha: 0.25
+    kero: 0.14
+    diesel: 0.28
+    vgo: 0.20
+    residue: 0.09
+    loss: 0.01
+  diesel_sulfur_pct: 0.15
+
+arab_light:
+  name: "Arab Light"
+  api: 33.0
+  sulfur_pct: 1.80
+  benchmark: brent
+  diff_usd_bbl: -1.50
+  fob_port: ras_tanura
+  yields:
+    lpg: 0.02
+    naphtha: 0.18
+    kero: 0.12
+    diesel: 0.25
+    vgo: 0.25
+    residue: 0.17
+    loss: 0.01
+  diesel_sulfur_pct: 0.90
+
+basrah_medium:
+  name: "Basrah Medium"
+  api: 27.0
+  sulfur_pct: 3.00
+  benchmark: brent
+  diff_usd_bbl: -4.00
+  fob_port: basrah
+  yields:
+    lpg: 0.01
+    naphtha: 0.13
+    kero: 0.10
+    diesel: 0.22
+    vgo: 0.27
+    residue: 0.26
+    loss: 0.01
+  diesel_sulfur_pct: 1.30
+
+saharan_blend:
+  name: "Saharan Blend"
+  api: 45.3
+  sulfur_pct: 0.09
+  benchmark: brent
+  diff_usd_bbl: 1.20
+  fob_port: arzew
+  yields:
+    lpg: 0.04
+    naphtha: 0.32
+    kero: 0.15
+    diesel: 0.28
+    vgo: 0.15
+    residue: 0.05
+    loss: 0.01
+  diesel_sulfur_pct: 0.04
+
+cpc_blend:
+  name: "CPC Blend"
+  api: 45.0
+  sulfur_pct: 0.55
+  benchmark: brent
+  diff_usd_bbl: -0.80
+  fob_port: novorossiysk
+  yields:
+    lpg: 0.04
+    naphtha: 0.31
+    kero: 0.15
+    diesel: 0.27
+    vgo: 0.16
+    residue: 0.06
+    loss: 0.01
+  diesel_sulfur_pct: 0.12

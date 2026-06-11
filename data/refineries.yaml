@@ -1,0 +1,74 @@
+# Refineries. Each refinery carries its geography (port -> routes.yaml),
+# its port limit (max_vessel -> vessels.yaml), its product price set
+# (product_market -> market.py), and one or more processing configurations.
+# conversion_unit: fcc | hcu | null. Capacities in kb/d. ILLUSTRATIVE values.
+# diesel_sulfur_spec_pct: max sulfur (%) of the STRAIGHT-RUN diesel pool the
+# refinery's hydrotreater is designed to process -- NOT the finished-product
+# spec (10-50 ppm), which is met downstream by hydrotreating (not modelled).
+
+dangote:
+  name: "Dangote Refinery"
+  port: lekki
+  max_vessel: vlcc
+  product_market: wam
+  configs:
+    fcc:
+      cdu_capacity_kbd: 650
+      conversion_unit: fcc
+      conversion_capacity_kbd: 220
+      coker_capacity_kbd: 0
+      diesel_sulfur_spec_pct: 0.60
+
+rotterdam:
+  name: "Rotterdam (archetype)"
+  port: rotterdam
+  max_vessel: suezmax
+  product_market: nwe
+  configs:
+    hydroskimming:
+      cdu_capacity_kbd: 200
+      conversion_unit: null
+      conversion_capacity_kbd: 0
+      coker_capacity_kbd: 0
+      diesel_sulfur_spec_pct: 0.20
+    fcc:
+      cdu_capacity_kbd: 200
+      conversion_unit: fcc
+      conversion_capacity_kbd: 60
+      coker_capacity_kbd: 0
+      diesel_sulfur_spec_pct: 0.35
+
+singapore:
+  name: "Singapore (archetype)"
+  port: singapore
+  max_vessel: vlcc
+  product_market: sing
+  configs:
+    hydrocracking:
+      cdu_capacity_kbd: 300
+      conversion_unit: hcu
+      conversion_capacity_kbd: 90
+      coker_capacity_kbd: 0
+      diesel_sulfur_spec_pct: 0.45
+    fcc_coking:
+      cdu_capacity_kbd: 300
+      conversion_unit: fcc
+      conversion_capacity_kbd: 80
+      coker_capacity_kbd: 60
+      diesel_sulfur_spec_pct: 0.50
+
+marseille:
+  name: "Marseille (Fos-sur-Mer, sandbox)"
+  port: fos
+  max_vessel: suezmax
+  product_market: med
+  configs:
+    # Baseline config; in the app, Marseille's units are fully editable
+    # (on/off, capacity, straight-run sulfur limit). These YAML values are
+    # only the default starting point the sandbox sliders load from.
+    default:
+      cdu_capacity_kbd: 250
+      conversion_unit: fcc
+      conversion_capacity_kbd: 75
+      coker_capacity_kbd: 0
+      diesel_sulfur_spec_pct: 0.40

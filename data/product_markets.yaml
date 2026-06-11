@@ -1,0 +1,47 @@
+# Regional product markets. Product prices are modelled as a constant crack
+# (differential, $/bbl) over the regional benchmark's futures curve:
+#   product_price(cut, date) = benchmark_curve(date) + crack(cut)
+# i.e. cracks are flat in time and the forward structure of products is
+# inherited from the crude benchmark. This is THE simplification that makes
+# product forwards possible without Platts/Argus -- stated in the README.
+# Crack defaults are ILLUSTRATIVE, editable in-app.
+
+wam:   # West Africa
+  benchmark: brent
+  cracks:
+    lpg: -15.0
+    naphtha: 2.0
+    kero: 14.0
+    diesel: 18.0
+    vgo: -7.0
+    residue: -24.0
+
+nwe:   # North-West Europe
+  benchmark: brent
+  cracks:
+    lpg: -18.0
+    naphtha: 1.0
+    kero: 13.0
+    diesel: 16.0
+    vgo: -8.0
+    residue: -25.0
+
+sing:   # Singapore
+  benchmark: brent
+  cracks:
+    lpg: -14.0
+    naphtha: 3.0
+    kero: 15.0
+    diesel: 17.0
+    vgo: -7.0
+    residue: -22.0
+
+med:   # Mediterranean
+  benchmark: brent
+  cracks:
+    lpg: -16.0
+    naphtha: 1.5
+    kero: 14.0
+    diesel: 17.0
+    vgo: -6.0
+    residue: -21.0

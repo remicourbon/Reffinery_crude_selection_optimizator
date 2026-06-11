@@ -1,0 +1,43 @@
+# Conversion units: what one barrel of feed becomes when upgraded.
+# Output yields are volume fractions over the standard cuts (+ loss) and sum
+# to 1.0. ILLUSTRATIVE values, order-of-magnitude from public refining
+# literature -- see README.
+#
+# Conventions:
+# - fcc/hcu are fed by the VGO cut, coker by the residue cut (shared with
+#   refinery.py and lp_model.py).
+# - FCC slurry/clarified oil is folded into the residue cut.
+# - Petroleum coke is folded into `loss` (valorised at ~0 in this model).
+
+fcc:
+  feed: vgo
+  outputs:
+    lpg: 0.05
+    naphtha: 0.55
+    kero: 0.00
+    diesel: 0.20
+    vgo: 0.00
+    residue: 0.15
+    loss: 0.05
+
+hcu:
+  feed: vgo
+  outputs:
+    lpg: 0.03
+    naphtha: 0.25
+    kero: 0.20
+    diesel: 0.45
+    vgo: 0.00
+    residue: 0.04
+    loss: 0.03
+
+coker:
+  feed: residue
+  outputs:
+    lpg: 0.05
+    naphtha: 0.15
+    kero: 0.00
+    diesel: 0.30
+    vgo: 0.20
+    residue: 0.00
+    loss: 0.30

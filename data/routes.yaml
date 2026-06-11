@@ -1,0 +1,89 @@
+# Routes between port pairs. Key convention: "portA-portB" with the two port
+# names sorted alphabetically -- each route is entered exactly once; the loader
+# normalises lookups. distance_nm and ws_flat_rate ($/t) are APPROXIMATE
+# (Worldscale flat rate tables are paid; values eyeballed from public sources).
+
+basrah-lekki:
+  distance_nm: 9400
+  ws_flat_rate: 18.8
+basrah-rotterdam:
+  distance_nm: 6500
+  ws_flat_rate: 15.2
+bonny-lekki:
+  distance_nm: 320
+  ws_flat_rate: 3.1
+bonny-rotterdam:
+  distance_nm: 4250
+  ws_flat_rate: 10.5
+corpus_christi-lekki:
+  distance_nm: 6050
+  ws_flat_rate: 14.6
+corpus_christi-rotterdam:
+  distance_nm: 5000
+  ws_flat_rate: 12.0
+hound_point-lekki:
+  distance_nm: 4300
+  ws_flat_rate: 11.0
+hound_point-rotterdam:
+  distance_nm: 450
+  ws_flat_rate: 3.5
+lekki-ras_tanura:
+  distance_nm: 9300
+  ws_flat_rate: 18.5
+ras_tanura-rotterdam:
+  distance_nm: 6400
+  ws_flat_rate: 15.0
+bonny-singapore:
+  distance_nm: 8600
+  ws_flat_rate: 17.5
+corpus_christi-singapore:
+  distance_nm: 10500
+  ws_flat_rate: 20.0
+hound_point-singapore:
+  distance_nm: 8300
+  ws_flat_rate: 17.0
+ras_tanura-singapore:
+  distance_nm: 3900
+  ws_flat_rate: 9.5
+basrah-singapore:
+  distance_nm: 4000
+  ws_flat_rate: 9.7
+arzew-fos:
+  distance_nm: 430
+  ws_flat_rate: 3.4
+arzew-lekki:
+  distance_nm: 3100
+  ws_flat_rate: 8.6
+arzew-rotterdam:
+  distance_nm: 1500
+  ws_flat_rate: 5.5
+arzew-singapore:
+  distance_nm: 8200
+  ws_flat_rate: 16.8
+basrah-fos:
+  distance_nm: 5300
+  ws_flat_rate: 13.2
+bonny-fos:
+  distance_nm: 3550
+  ws_flat_rate: 9.4
+corpus_christi-fos:
+  distance_nm: 5400
+  ws_flat_rate: 12.8
+fos-hound_point:
+  distance_nm: 2400
+  ws_flat_rate: 7.2
+fos-novorossiysk:
+  distance_nm: 2100
+  ws_flat_rate: 6.6
+fos-ras_tanura:
+  distance_nm: 5200
+  ws_flat_rate: 13.0
+lekki-novorossiysk:
+  distance_nm: 5600
+  ws_flat_rate: 13.5
+novorossiysk-rotterdam:
+  distance_nm: 4100
+  ws_flat_rate: 10.8
+novorossiysk-singapore:
+  distance_nm: 8000
+  ws_flat_rate: 16.5
