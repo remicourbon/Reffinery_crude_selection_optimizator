@@ -45,7 +45,7 @@ ds = dataset()
 
 # ---------------------------------------------------------------- sidebar --
 st.sidebar.title("Crude Delivery Optimizer")
-page = st.sidebar.radio("Page", ["Markets", "Freight", "Refinery", "Simulator"])
+page = st.sidebar.radio("Page", ["Simulator", "Markets", "Freight", "Refinery"])
 
 st.sidebar.header("Refinery")
 refinery_key = st.sidebar.selectbox(
