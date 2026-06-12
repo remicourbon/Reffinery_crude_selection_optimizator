@@ -4,16 +4,20 @@
 # literature -- see README.
 #
 # Conventions:
-# - fcc/hcu are fed by the VGO cut, coker by the residue cut (shared with
-#   refinery.py and lp_model.py).
+# - fcc/hcu are fed by the VGO cut, coker by the residue cut, reformer by the
+#   naphtha cut (shared with refinery.py and lp_model.py).
+# - FCC and reformer produce GASOLINE (high-octane), a distinct cut from raw
+#   straight-run naphtha and valued at the gasoline crack.
 # - FCC slurry/clarified oil is folded into the residue cut.
 # - Petroleum coke is folded into `loss` (valorised at ~0 in this model).
+# - The reformer also makes hydrogen + light ends; here lumped into lpg/loss.
 
 fcc:
   feed: vgo
   outputs:
     lpg: 0.05
-    naphtha: 0.55
+    naphtha: 0.00
+    gasoline: 0.55
     kero: 0.00
     diesel: 0.20
     vgo: 0.00
@@ -24,7 +28,8 @@ hcu:
   feed: vgo
   outputs:
     lpg: 0.03
-    naphtha: 0.25
+    naphtha: 0.05
+    gasoline: 0.20
     kero: 0.20
     diesel: 0.45
     vgo: 0.00
@@ -36,8 +41,21 @@ coker:
   outputs:
     lpg: 0.05
     naphtha: 0.15
+    gasoline: 0.00
     kero: 0.00
     diesel: 0.30
     vgo: 0.20
     residue: 0.00
     loss: 0.30
+
+reformer:
+  feed: naphtha
+  outputs:
+    lpg: 0.05
+    naphtha: 0.00
+    gasoline: 0.88
+    kero: 0.00
+    diesel: 0.00
+    vgo: 0.00
+    residue: 0.00
+    loss: 0.07

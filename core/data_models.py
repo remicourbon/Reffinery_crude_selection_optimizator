@@ -23,7 +23,7 @@ from typing import Mapping, Optional
 
 import yaml
 
-CUTS = ("lpg", "naphtha", "kero", "diesel", "vgo", "residue")
+CUTS = ("lpg", "naphtha", "gasoline", "kero", "diesel", "vgo", "residue")
 ALL_CUTS = CUTS + ("loss",)
 YIELD_TOLERANCE = 1e-6
 BENCHMARKS = ("brent", "wti")
@@ -95,6 +95,7 @@ class RefineryConfig:
     conversion_capacity_kbd: float
     coker_capacity_kbd: float
     diesel_sulfur_spec_pct: float
+    reformer_capacity_kbd: float = 0.0   # naphtha -> gasoline; 0 = no reformer
 
     def __post_init__(self):
         f = "refineries.yaml"
@@ -114,6 +115,8 @@ class RefineryConfig:
                   "conversion_capacity_kbd must be > 0 when a conversion unit is set")
         if self.coker_capacity_kbd < 0:
             _fail(f, ident, "coker_capacity_kbd must be >= 0")
+        if self.reformer_capacity_kbd < 0:
+            _fail(f, ident, "reformer_capacity_kbd must be >= 0")
         if not 0.0 < self.diesel_sulfur_spec_pct < 6.0:
             _fail(f, ident,
                   f"diesel_sulfur_spec_pct={self.diesel_sulfur_spec_pct} "
@@ -264,6 +267,11 @@ class Dataset:
                     _fail("refineries.yaml", ident,
                           "has coker capacity but no 'coker' entry "
                           "in conversion_units.yaml")
+                if cfg.reformer_capacity_kbd > 0 and \
+                        "reformer" not in self.conversion_units:
+                    _fail("refineries.yaml", ident,
+                          "has reformer capacity but no 'reformer' entry "
+                          "in conversion_units.yaml")
         # The most likely data error in this project: a missing route for a
         # (crude, refinery) pair. Fail loudly, listing every gap at once.
         gaps = []
@@ -361,3 +369,4 @@ def load_dataset(data_dir: str | Path) -> Dataset:
     )
     ds.validate_referential_integrity()
     return ds
+

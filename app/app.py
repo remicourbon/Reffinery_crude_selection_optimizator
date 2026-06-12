@@ -78,6 +78,12 @@ if is_sandbox:
     coker_cap = float(st.sidebar.slider(
         "Coker capacity (kb/d)", 10, 150, 40, step=5)) if coker_on else 0.0
 
+    reformer_on = st.sidebar.checkbox("Reformer (naphtha → gasoline)",
+                                      value=True)
+    reformer_cap = float(st.sidebar.slider(
+        "Reformer capacity (kb/d)", 10, 150, 40, step=5)) \
+        if reformer_on else 0.0
+
     sulfur_spec = st.sidebar.slider(
         "Straight-run diesel sulfur limit (%)", 0.05, 2.50,
         float(base.diesel_sulfur_spec_pct), step=0.05,
@@ -87,7 +93,8 @@ if is_sandbox:
     config_override = RefineryConfig(
         key="sandbox", refinery_key=SANDBOX_KEY, cdu_capacity_kbd=float(cdu_cap),
         conversion_unit=conv_unit, conversion_capacity_kbd=conv_cap,
-        coker_capacity_kbd=coker_cap, diesel_sulfur_spec_pct=sulfur_spec)
+        coker_capacity_kbd=coker_cap, diesel_sulfur_spec_pct=sulfur_spec,
+        reformer_capacity_kbd=reformer_cap)
     config = config_override
     config_key = "sandbox"
 else:
@@ -176,9 +183,9 @@ COST_COLORS = {
     "Ins.+loss": "#b0656a",  # red    -- leakage
 }
 CUT_COLORS = {
-    "lpg": "#9ac1d9", "naphtha": "#6fa8c7", "kero": "#5a8a6b",
-    "diesel": "#3f6f4f", "vgo": "#e0a458", "residue": "#9b6a9e",
-    "loss": "#cccccc",
+    "lpg": "#9ac1d9", "naphtha": "#6fa8c7", "gasoline": "#4a7fb0",
+    "kero": "#5a8a6b", "diesel": "#3f6f4f", "vgo": "#e0a458",
+    "residue": "#9b6a9e", "loss": "#cccccc",
 }
 PLOT_LAYOUT = dict(
     margin=dict(t=30, b=30, l=10, r=10),
@@ -501,6 +508,19 @@ elif page == "Refinery":
         char_rows.append({"Unit": "Coker", "Active": "no",
                           "Capacity (kb/d)": "-",
                           "Utilisation %": "-", "Uplift $/bbl": "-"})
+    if config.reformer_capacity_kbd > 0:
+        char_rows.append({
+            "Unit": "Reformer", "Active": "yes",
+            "Capacity (kb/d)": round(config.reformer_capacity_kbd, 1),
+            "Utilisation %": round(
+                100 * rep.upgraded_reformer_kbd
+                / active_config.reformer_capacity_kbd, 1),
+            "Uplift $/bbl": round(rep.reformer_uplift_usd_bbl, 2),
+        })
+    else:
+        char_rows.append({"Unit": "Reformer", "Active": "no",
+                          "Capacity (kb/d)": "-",
+                          "Utilisation %": "-", "Uplift $/bbl": "-"})
     st.dataframe(pd.DataFrame(char_rows), hide_index=True)
 
 # -------------------------------------------------------------- simulator --
@@ -551,4 +571,5 @@ else:
     st.dataframe(pd.DataFrame(
         [{"Constraint": k, "Dual": round(v, 3)}
          for k, v in res.shadow_prices.items()]), hide_index=True)
+    
     

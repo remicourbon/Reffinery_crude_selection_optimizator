@@ -11,6 +11,7 @@ wam:   # West Africa
   cracks:
     lpg: -15.0
     naphtha: 2.0
+    gasoline: 12.0
     kero: 14.0
     diesel: 18.0
     vgo: -7.0
@@ -21,6 +22,7 @@ nwe:   # North-West Europe
   cracks:
     lpg: -18.0
     naphtha: 1.0
+    gasoline: 11.0
     kero: 13.0
     diesel: 16.0
     vgo: -8.0
@@ -31,6 +33,7 @@ sing:   # Singapore
   cracks:
     lpg: -14.0
     naphtha: 3.0
+    gasoline: 13.0
     kero: 15.0
     diesel: 17.0
     vgo: -7.0
@@ -41,6 +44,7 @@ med:   # Mediterranean
   cracks:
     lpg: -16.0
     naphtha: 1.5
+    gasoline: 11.5
     kero: 14.0
     diesel: 17.0
     vgo: -6.0

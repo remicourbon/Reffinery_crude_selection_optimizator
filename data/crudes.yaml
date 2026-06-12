@@ -14,6 +14,7 @@ bonny_light:
   yields:
     lpg: 0.03
     naphtha: 0.22
+    gasoline: 0.00
     kero: 0.16
     diesel: 0.31
     vgo: 0.20
@@ -31,6 +32,7 @@ wti_midland:
   yields:
     lpg: 0.04
     naphtha: 0.30
+    gasoline: 0.00
     kero: 0.14
     diesel: 0.27
     vgo: 0.17
@@ -48,6 +50,7 @@ forties:
   yields:
     lpg: 0.03
     naphtha: 0.25
+    gasoline: 0.00
     kero: 0.14
     diesel: 0.28
     vgo: 0.20
@@ -65,6 +68,7 @@ arab_light:
   yields:
     lpg: 0.02
     naphtha: 0.18
+    gasoline: 0.00
     kero: 0.12
     diesel: 0.25
     vgo: 0.25
@@ -82,6 +86,7 @@ basrah_medium:
   yields:
     lpg: 0.01
     naphtha: 0.13
+    gasoline: 0.00
     kero: 0.10
     diesel: 0.22
     vgo: 0.27
@@ -99,6 +104,7 @@ saharan_blend:
   yields:
     lpg: 0.04
     naphtha: 0.32
+    gasoline: 0.00
     kero: 0.15
     diesel: 0.28
     vgo: 0.15
@@ -116,6 +122,7 @@ cpc_blend:
   yields:
     lpg: 0.04
     naphtha: 0.31
+    gasoline: 0.00
     kero: 0.15
     diesel: 0.27
     vgo: 0.16

@@ -55,6 +55,24 @@ Streamlit). Or manually:
   units extract. Net margin is computed against this (not bare GPW), so a
   conversion refinery's economics are stated correctly.
 
+## Upgrading units (cut schema: 7 cuts + loss)
+
+Straight-run cuts: lpg, naphtha, **gasoline**, kero, diesel, vgo, residue.
+Three upgrading routes, each modelled as a unit with a feed cut, an output
+slate and a per-barrel uplift; the LP decides which to run:
+
+- **FCC / HCU** (feed: VGO) -- conversion of heavy gas oil. FCC maximises
+  gasoline, HCU maximises middle distillates.
+- **Coker** (feed: residue) -- destroys the bottom of the barrel into lighter
+  cuts plus petroleum coke (lumped into loss).
+- **Reformer** (feed: naphtha) -- turns low-value straight-run naphtha into
+  high-octane **gasoline** (+ hydrogen/light ends, lumped into lpg/loss).
+  This is why a hydroskimmer (no reformer) leaves naphtha unvalorised while a
+  conversion refinery reforms it -- visible directly in the material balance.
+
+Gasoline is a distinct cut from raw naphtha and is valued at the regional
+gasoline crack (well above naphtha). FCC/reformer output gasoline, not naphtha.
+
 ## The LP in one paragraph
 
 Decision variables: volumes purchased per crude, plus two upgrading volumes
@@ -124,3 +142,4 @@ sandbox** whose units are configured from the app, not the data files.
 
 Mediterranean crudes were added for Marseille: **Saharan Blend** (Algeria,
 light sweet) and **CPC Blend** (Black Sea, light, mildly sour).
+

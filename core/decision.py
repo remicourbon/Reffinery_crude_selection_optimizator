@@ -115,6 +115,7 @@ def _scaled_config(config: RefineryConfig,
         cdu_capacity_kbd=volume_kbbl,
         conversion_capacity_kbd=config.conversion_capacity_kbd * scale,
         coker_capacity_kbd=config.coker_capacity_kbd * scale,
+        reformer_capacity_kbd=config.reformer_capacity_kbd * scale,
     )
 
 

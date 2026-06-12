@@ -191,8 +191,10 @@ class UpgradingResult:
     balance: Mapping[str, float]          # final slate, kb/d, incl. loss
     upgraded_conv_kbd: float
     upgraded_coker_kbd: float
+    upgraded_reformer_kbd: float
     conv_uplift_usd_bbl: float            # 0.0 when no unit
     coker_uplift_usd_bbl: float
+    reformer_uplift_usd_bbl: float
     gpw_cdu_kusd_day: float               # value of the straight-run slate
     upgrading_gain_kusd_day: float        # extra value from conversion
     total_value_kusd_day: float           # = gpw_cdu + upgrading_gain
@@ -242,14 +244,31 @@ def apply_upgrading(basket: Basket,
         coker_vol, coker_lift = _upgrade_step(
             balance, units["coker"], config.coker_capacity_kbd, prices)
 
-    gain = conv_vol * max(conv_lift, 0.0) + coker_vol * max(coker_lift, 0.0)
+    # Reformer runs LAST, on all naphtha available (straight-run plus any made
+    # by FCC/coker), turning it into gasoline. Acyclic: nothing downstream
+    # feeds back to it.
+    reformer_vol, reformer_lift = 0.0, 0.0
+    if config.reformer_capacity_kbd > 0:
+        if "reformer" not in units:
+            raise RefineryInputError(
+                "reformer capacity set but no 'reformer' unit")
+        reformer_vol, reformer_lift = _upgrade_step(
+            balance, units["reformer"], config.reformer_capacity_kbd, prices)
+
+    gain = (conv_vol * max(conv_lift, 0.0)
+            + coker_vol * max(coker_lift, 0.0)
+            + reformer_vol * max(reformer_lift, 0.0))
     return UpgradingResult(
         balance=MappingProxyType(balance),
         upgraded_conv_kbd=conv_vol,
         upgraded_coker_kbd=coker_vol,
+        upgraded_reformer_kbd=reformer_vol,
         conv_uplift_usd_bbl=conv_lift if config.conversion_unit else 0.0,
         coker_uplift_usd_bbl=coker_lift if config.coker_capacity_kbd > 0 else 0.0,
+        reformer_uplift_usd_bbl=(reformer_lift
+                                 if config.reformer_capacity_kbd > 0 else 0.0),
         gpw_cdu_kusd_day=gpw_cdu,
         upgrading_gain_kusd_day=gain,
         total_value_kusd_day=gpw_cdu + gain,
     )
+
