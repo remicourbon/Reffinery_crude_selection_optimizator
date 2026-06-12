@@ -329,15 +329,16 @@ elif page == "Freight":
                 "change the FOB. Distance is paid purely through freight and "
                 "financing.")
     elif slope > 0:
-        st.success(f"**{bench_name.upper()} in contango** "
-                   f"({slope:+.2f} $/month): buying earlier (longer voyages) "
-                   "is *cheaper* on the curve. The structure **subsidises "
-                   "distance** — it shows up as a negative bar below.")
+        st.success(
+            f"**{bench_name.upper()} is in contango** "
+            f"({slope:+.2f} $/month): earlier pricing is cheaper than later pricing. "
+            "The structure component rewards crudes priced closer to spot and "
+            "penalizes crudes priced further out on the curve.")
     else:
         st.warning(f"**{bench_name.upper()} in backwardation** "
-                   f"({slope:+.2f} $/month): buying earlier is *more "
-                   "expensive*. The structure **penalises distance** — long "
-                   "voyages pay a premium on the curve.")
+                   f"({slope:+.2f} $/month): earlier pricing is more expensive than later pricing. "
+                   "The structure component penalizes crudes priced closer to spot and "
+                   "benefits crudes priced further out on the curve.")
 
     df = freight_frame().sort_values("CIF").reset_index(drop=True)
     st.caption("The waterfall starts at **FOB Spot** (today's price) and adds "
