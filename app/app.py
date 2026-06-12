@@ -25,7 +25,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
-from core.data_models import CUTS, RefineryConfig, load_dataset
+from core.data_models import CUTS, ALL_CUTS, RefineryConfig, load_dataset
 from core.decision import evaluate
 from core.market import benchmark_curves, product_prices
 from core.refinery import (apply_upgrading, blend_diesel_sulfur, gpw,
@@ -45,7 +45,8 @@ ds = dataset()
 
 # ---------------------------------------------------------------- sidebar --
 st.sidebar.title("Crude Delivery Optimizer")
-page = st.sidebar.radio("Page", ["Simulator", "Markets", "Freight", "Refinery"])
+page = st.sidebar.radio("Page", ["Simulator", "Markets", "Freight",
+                                 "Refinery", "Reference data"])
 
 st.sidebar.header("Refinery")
 refinery_key = st.sidebar.selectbox(
@@ -78,7 +79,7 @@ if is_sandbox:
     coker_cap = float(st.sidebar.slider(
         "Coker capacity (kb/d)", 10, 150, 40, step=5)) if coker_on else 0.0
 
-    reformer_on = st.sidebar.checkbox("Reformer (naphtha → gasoline)",
+    reformer_on = st.sidebar.checkbox("Reformer (naphtha -> gasoline)",
                                       value=True)
     reformer_cap = float(st.sidebar.slider(
         "Reformer capacity (kb/d)", 10, 150, 40, step=5)) \
@@ -342,14 +343,14 @@ elif page == "Freight":
 
     df = freight_frame().sort_values("CIF").reset_index(drop=True)
     st.caption("The waterfall starts at **FOB Spot** (today's price) and adds "
-               "**Structure** = FOB(departure) − FOB(spot): what the curve "
+               "**Structure** = FOB(departure) - FOB(spot): what the curve "
                "charges (or pays) for buying at the departure tenor instead "
                "of today. FOB Spot + Structure = FOB at departure (the real "
                "price paid, matching the Markets page).")
 
     # --- cheapest-crude waterfall, on top --------------------------------
     cheapest = df.iloc[0]
-    st.subheader(f"CIF waterfall — cheapest delivered: {cheapest['Crude']} "
+    st.subheader(f"CIF waterfall -- cheapest delivered: {cheapest['Crude']} "
                  f"({cheapest['CIF']:.2f} $/bbl)")
     options = list(df["Crude"])
     chosen = st.selectbox("Crude", options, index=0)
@@ -387,9 +388,6 @@ elif page == "Refinery":
             st.stop()
         basket = dict(decision.optimisation.basket)   # kbbl of the cargo
         unit_label = "kbbl"
-        # The optimal basket is in kbbl of the cargo, so use the SAME scaled
-        # config the LP used (capacities scaled to the cargo). Using the raw
-        # kb/d config here would report nonsense like "CDU 1000%".
         active_config = decision.scaled_config
     else:
         st.write("Volumes (kb/d):")
@@ -402,7 +400,6 @@ elif page == "Refinery":
             if v > 0:
                 basket[key] = v
         unit_label = "kb/d"
-        # Manual volumes are in kb/d, matching the raw config capacities.
         active_config = config
         if not basket:
             st.info("Set at least one crude volume to run the refinery.")
@@ -429,18 +426,11 @@ elif page == "Refinery":
              delta=f"limit {active_config.diesel_sulfur_spec_pct:.2f}%",
              delta_color="off")
 
-    # --- processing-days indicator (option B) -----------------------------
-    # The cargo is a stock (kbbl); CDU is a rate (kb/d). A 1000 kbbl cargo at
-    # a 200 kb/d refinery is simply 5 days of feed -- normal. We surface the
-    # coverage in days and warn only when it becomes operationally unrealistic
-    # (storage, capital tied up, market exposure). `config` is always the
-    # nominal (unscaled) config, so config.cdu_capacity_kbd is the true kb/d
-    # nameplate even in Optimal mode where active_config is scaled.
     if unit_label == "kbbl":   # Optimal mode: basket is a cargo in kbbl
         nameplate_cdu = config.cdu_capacity_kbd
         feed_days = total / nameplate_cdu
         if feed_days > 15:
-            st.warning(f"⚠️ This cargo is **{feed_days:.1f} days** of feed at "
+            st.warning(f"This cargo is **{feed_days:.1f} days** of feed at "
                        f"{nameplate_cdu:.0f} kb/d. Above ~15 days, storage and "
                        "market exposure get unrealistic for a single purchase.")
         else:
@@ -470,12 +460,9 @@ elif page == "Refinery":
     # --- refinery characteristics -----------------------------------------
     st.subheader("Refinery characteristics")
     st.caption("Nameplate capacity (kb/d throughput, independent of cargo "
-               "size), utilisation (feed actually upgraded ÷ capacity over "
+               "size), utilisation (feed actually upgraded / capacity over "
                "the processing window) and the per-barrel uplift each unit "
                "earns at current prices.")
-    # Capacities shown are NOMINAL (config, kb/d) -- the refinery's true
-    # characteristic. Utilisation is the real run rate, computed against the
-    # scaled config the LP used, so it stays correct regardless of cargo size.
     char_rows = [{
         "Unit": "CDU", "Active": "yes",
         "Capacity (kb/d)": round(config.cdu_capacity_kbd, 1),
@@ -527,6 +514,108 @@ elif page == "Refinery":
         char_df[col] = char_df[col].astype(str)
     st.dataframe(char_df, hide_index=True)
 
+# ---------------------------------------------------------- reference data --
+elif page == "Reference data":
+    st.title("Reference data")
+    st.caption("All the static assumptions behind the model, straight from "
+               "the YAML files. Values are illustrative and approximate "
+               "(Platts/Argus/Worldscale are paid) -- see the README for "
+               "sources and simplifications. Nothing here is hidden: this is "
+               "what every other page computes from.")
+
+    tab_crudes, tab_ref, tab_vessels, tab_routes, tab_units, tab_mkt = st.tabs(
+        ["Crudes", "Refineries", "Vessels", "Routes", "Conversion units",
+         "Product markets"])
+
+    with tab_crudes:
+        st.subheader("Crude assays")
+        st.caption("Yields are volume fractions of each cut (sum to 1.0 with "
+                   "loss). FOB price = benchmark futures curve + the static "
+                   "differential. diesel S% is the sulfur of the diesel cut "
+                   "(the only sulfur the LP constrains).")
+        rows = []
+        for k, c in ds.crudes.items():
+            r = {"Crude": c.name, "API": c.api, "Sulfur %": c.sulfur_pct,
+                 "Benchmark": c.benchmark, "Diff $/bbl": c.diff_usd_bbl,
+                 "FOB port": c.fob_port, "Diesel S%": c.diesel_sulfur_pct}
+            for cut in ALL_CUTS:
+                r[cut] = round(c.yields[cut], 3)
+            rows.append(r)
+        st.dataframe(pd.DataFrame(rows), hide_index=True)
+
+    with tab_ref:
+        st.subheader("Refineries and configurations")
+        st.caption("Each refinery has a discharge port, a max vessel the port "
+                   "accepts, a regional product market, and one or more "
+                   "configurations. Marseille is a live sandbox (its config "
+                   "is built from the sidebar, not shown here).")
+        rows = []
+        for rk, r in ds.refineries.items():
+            for ck, cfg in r.configs.items():
+                rows.append({
+                    "Refinery": r.name, "Port": r.port,
+                    "Max vessel": r.max_vessel,
+                    "Product market": r.product_market,
+                    "Config": ck,
+                    "CDU kb/d": cfg.cdu_capacity_kbd,
+                    "Conversion": cfg.conversion_unit or "-",
+                    "Conv. kb/d": cfg.conversion_capacity_kbd,
+                    "Coker kb/d": cfg.coker_capacity_kbd,
+                    "Reformer kb/d": cfg.reformer_capacity_kbd,
+                    "Diesel S spec %": cfg.diesel_sulfur_spec_pct,
+                })
+        st.dataframe(pd.DataFrame(rows), hide_index=True)
+
+    with tab_vessels:
+        st.subheader("Vessel classes")
+        st.caption("Cargo size, service speed, typical negotiated Worldscale "
+                   "%, and port days (load + discharge). The model picks the "
+                   "cheapest feasible vessel for each route and cargo size.")
+        rows = [{
+            "Vessel": vk, "Cargo (kbbl)": v.cargo_kbbl,
+            "Speed (kn)": v.speed_knots,
+            "Typical WS %": v.typical_ws_pct, "Port days": v.port_days,
+        } for vk, v in ds.vessels.items()]
+        st.dataframe(pd.DataFrame(rows), hide_index=True)
+
+    with tab_routes:
+        st.subheader("Routes")
+        st.caption("Distance (nautical miles) and Worldscale flat rate ($/t) "
+                   "for each port pair. Keys are alphabetically sorted port "
+                   "pairs. Voyage time = distance / speed + port days.")
+        rows = [{
+            "Route": rk, "Distance (nm)": r.distance_nm,
+            "WS flat ($/t)": r.ws_flat_rate,
+        } for rk, r in sorted(ds.routes.items())]
+        st.dataframe(pd.DataFrame(rows), hide_index=True)
+
+    with tab_units:
+        st.subheader("Conversion units")
+        st.caption("What one barrel of feed becomes when upgraded (volume "
+                   "fractions, sum to 1.0). FCC and reformer make gasoline; "
+                   "the reformer's feed is naphtha, FCC/HCU's is VGO, the "
+                   "coker's is residue.")
+        rows = []
+        for uk, u in ds.conversion_units.items():
+            r = {"Unit": uk, "Feed": u.feed}
+            for cut in ALL_CUTS:
+                r[cut] = round(u.outputs[cut], 3)
+            rows.append(r)
+        st.dataframe(pd.DataFrame(rows), hide_index=True)
+
+    with tab_mkt:
+        st.subheader("Product markets (cracks vs benchmark, $/bbl)")
+        st.caption("Each regional market prices products as benchmark curve + "
+                   "a constant crack per cut. Gasoline crack sits well above "
+                   "naphtha -- that gap is what the reformer captures.")
+        rows = []
+        for mk, m in ds.product_markets.items():
+            r = {"Market": mk, "Benchmark": m.benchmark}
+            for cut in CUTS:
+                r[cut] = m.cracks[cut]
+            rows.append(r)
+        st.dataframe(pd.DataFrame(rows), hide_index=True)
+
 # -------------------------------------------------------------- simulator --
 else:
     st.title("Simulator")
@@ -559,11 +648,10 @@ else:
     c.metric("Pool sulfur",
              f"{blend_diesel_sulfur(res.basket, ds.crudes):.2f}%")
     bk = dict(res.basket)
-    # Vessel(s) carrying the cargo: each picked crude has its own best vessel.
     vessels_used = sorted({decision.options[k].freight.vessel_key
                            for k in bk})
     st.caption("Vessel(s): " + ", ".join(
-        f"**{ds.crudes[k].name}** → {decision.options[k].freight.vessel_key} "
+        f"**{ds.crudes[k].name}** -> {decision.options[k].freight.vessel_key} "
         f"({decision.options[k].voyage_days:.0f} d, departs "
         f"{decision.options[k].departure_date})" for k in bk))
     fig = go.Figure(go.Bar(
