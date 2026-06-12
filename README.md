@@ -3,8 +3,8 @@
 A physical crude oil delivery decision tool. Given a refinery, a **target
 arrival date** and a cargo volume, it prices every candidate crude at its own
 tenor (FOB at departure + freight + financing + insurance + losses), then a
-linear program allocates the cargo to maximise refining margin against
-product prices **at arrival**.
+linear program allocates the cargo to maximise refining margin (total product
+worth minus delivered cost) against product prices **at arrival**.
 
 The question it answers, concretely: *I run Dangote -- should I buy US crude
 spot today and wait 26 days at sea, or buy Nigerian crude forward and have it
@@ -25,12 +25,35 @@ core/
                    product prices at any tenor
   lp_model.py      the basket LP (PuLP) -- full formulation in the docstring
   decision.py      orchestrator: arrival date -> departure tenors -> LP
-tests/       74 unit tests; hand-computed reference numbers in comments
-app/         Streamlit, 3 pages (Markets / Refinery / Simulator) -- no
-             business logic in the UI
+tests/       79 unit tests; hand-computed reference numbers in comments
+app/         Streamlit, 4 pages (Markets / Freight / Refinery / Simulator)
+             -- no business logic in the UI
 ```
 
-Run: `pip install -r requirements.txt && python -m pytest && streamlit run app/app.py`
+Run: `python run.py` (installs deps on first run, fixes sys.path, launches
+Streamlit). Or manually:
+`pip install -r requirements.txt && python -m pytest && python -m streamlit run app/app.py`
+
+## Pricing vocabulary (used consistently across all pages)
+
+- **FOB Spot** -- today's price of the crude (benchmark front + differential).
+  The tangible screen price, tenor 0.
+- **FOB at departure** -- the price actually paid: the crude priced at its
+  departure tenor (arrival date minus voyage days). This is the real cash
+  outlay and is shown on Markets and Simulator.
+- **Structure cost** = FOB at departure - FOB Spot. What the forward curve
+  charges (or pays) for buying at the departure tenor instead of today.
+  In **contango** the structure of a longer voyage is *lower* (it loads at a
+  tenor closer to spot), so the curve favours distance; in **backwardation**
+  it is *higher*, penalising distance. The Freight page isolates this in the
+  CIF waterfall (which starts at FOB Spot) and in a dedicated structure table.
+- **Financing** -- ACT/360 interest on the FOB value over the voyage, a
+  *separate* mechanism from structure: structure is the curve effect,
+  financing is the cost of capital tied up at sea.
+- **CIF** = FOB at departure + freight + financing + insurance + losses.
+- **Total product worth** = straight-run GPW + upgrading gain the refinery's
+  units extract. Net margin is computed against this (not bare GPW), so a
+  conversion refinery's economics are stated correctly.
 
 ## The LP in one paragraph
 

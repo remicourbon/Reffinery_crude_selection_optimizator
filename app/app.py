@@ -135,24 +135,34 @@ prices_arrival = product_prices(ds.product_markets[refinery.product_market],
 
 
 def margin_table() -> pd.DataFrame:
-    """Per-crude option table, sorted by increasing net margin."""
+    """Per-crude option table, best net margin first.
+
+    Net margin is computed on TOTAL PRODUCT WORTH (straight-run GPW + the
+    upgrading gain this refinery's units would extract from that crude), not
+    on bare GPW -- otherwise a conversion refinery's economics look wrong.
+    Total product worth per crude is obtained by running apply_upgrading on a
+    single-crude basket at the SAME scaled config the LP used.
+    """
     rows = []
     for key, o in decision.options.items():
-        g = gpw(ds.crudes[key], prices_arrival)
+        single = {key: decision.volume_kbbl}
+        rep = apply_upgrading(single, ds.crudes, decision.scaled_config,
+                              ds.conversion_units, prices_arrival)
+        tpw = rep.total_value_kusd_day / decision.volume_kbbl  # $/bbl
         rows.append({
             "Crude": ds.crudes[key].name,
             "Vessel": o.freight.vessel_key,
             "Departure": o.departure_date,
             "Voyage (d)": round(o.voyage_days, 1),
-            "FOB": round(o.fob_usd_bbl, 2),
+            "FOB at departure": round(o.fob_usd_bbl, 2),
             "Freight": round(o.freight.freight_usd_bbl, 2),
             "Financing": round(o.financing_usd_bbl, 2),
             "Ins.+loss": round(o.insurance_usd_bbl + o.losses_usd_bbl, 2),
             "CIF $/bbl": round(o.cif_usd_bbl, 2),
-            "GPW at arrival": round(g, 2),
-            "Net margin $/bbl": round(g - o.cif_usd_bbl, 2),
+            "Total product worth": round(tpw, 2),
+            "Net margin $/bbl": round(tpw - o.cif_usd_bbl, 2),
         })
-    return pd.DataFrame(rows).sort_values("Net margin $/bbl")
+    return pd.DataFrame(rows).sort_values("Net margin $/bbl", ascending=False)
 
 
 # ----------------------------------------------------------- visual style --
@@ -182,10 +192,17 @@ def stacked_cif_chart(df: pd.DataFrame) -> go.Figure:
     Lets a trader compare the *shape* of each delivered cost, not just the
     total: a long-haul crude shows a big Freight block and (in contango) a
     negative Structure block; a nearby crude shows the opposite."""
+    components = ["FOB Spot", "Structure", "Freight",
+                  "Financing", "Ins.+loss"]
+    color_of = {"FOB Spot": COST_COLORS["FOB"],
+                "Structure": COST_COLORS["Structure"],
+                "Freight": COST_COLORS["Freight"],
+                "Financing": COST_COLORS["Financing"],
+                "Ins.+loss": COST_COLORS["Ins.+loss"]}
     fig = go.Figure()
-    for comp in ["FOB", "Structure", "Freight", "Financing", "Ins.+loss"]:
+    for comp in components:
         fig.add_bar(name=comp, x=df["Crude"], y=df[comp],
-                    marker_color=COST_COLORS[comp],
+                    marker_color=color_of[comp],
                     text=[f"{v:+.1f}" for v in df[comp]],
                     textposition="inside", insidetextanchor="middle")
     fig.add_scatter(x=df["Crude"], y=df["CIF"], mode="markers+text",
@@ -199,15 +216,16 @@ def stacked_cif_chart(df: pd.DataFrame) -> go.Figure:
 
 
 def cif_waterfall(row: pd.Series) -> go.Figure:
-    comps = ["FOB", "Structure", "Freight", "Financing", "Ins.+loss"]
+    spot = row["FOB Spot"]
     fig = go.Figure(go.Waterfall(
         orientation="v",
         measure=["absolute"] + ["relative"] * 4 + ["total"],
-        x=comps + ["CIF"],
-        y=[row["FOB"], row["Structure"], row["Freight"],
+        x=["FOB Spot", "Structure", "Freight", "Financing",
+           "Ins.+loss", "CIF"],
+        y=[spot, row["Structure"], row["Freight"],
            row["Financing"], row["Ins.+loss"], 0.0],
         text=[f"{v:.2f}" for v in
-              [row["FOB"], row["Structure"], row["Freight"],
+              [spot, row["Structure"], row["Freight"],
                row["Financing"], row["Ins.+loss"], row["CIF"]]],
         textposition="outside",
         connector=dict(line=dict(color="#bbbbbb")),
@@ -219,21 +237,28 @@ def cif_waterfall(row: pd.Series) -> go.Figure:
 
 
 def freight_frame() -> pd.DataFrame:
-    """Per-crude CIF decomposition for the Freight page and stacked chart.
-    FOB here is FOB-at-arrival (the structure-free reference); Structure is
-    the curve effect of departing earlier. Their sum is FOB-at-departure."""
+    """Per-crude CIF decomposition, built from FOB SPOT.
+
+    The waterfall starts at FOB Spot (today's price, tenor 0 -- the tangible
+    screen price) and adds Structure as a visible bar: Structure =
+    FOB(departure) - FOB(spot), the curve effect of buying at the departure
+    tenor rather than today. Negative in contango (subsidises distance),
+    positive in backwardation. The columns FOB Spot + Structure reconstruct
+    FOB at departure, which is the real price paid and matches the Markets
+    page.
+    """
     rows = []
     for key, o in decision.options.items():
         crude = ds.crudes[key]
-        fob_at_arrival = curves[crude.benchmark].price(arrival) \
-            + crude.diff_usd_bbl
+        fob_spot = curves[crude.benchmark].front + crude.diff_usd_bbl
         rows.append({
             "key": key, "Crude": crude.name,
-            "FOB": fob_at_arrival,
-            "Structure": o.fob_usd_bbl - fob_at_arrival,
+            "FOB Spot": fob_spot,
+            "Structure": o.fob_usd_bbl - fob_spot,
             "Freight": o.freight.freight_usd_bbl,
             "Financing": o.financing_usd_bbl,
             "Ins.+loss": o.insurance_usd_bbl + o.losses_usd_bbl,
+            "FOB at departure": o.fob_usd_bbl,
             "CIF": o.cif_usd_bbl,
         })
     return pd.DataFrame(rows)
@@ -261,12 +286,15 @@ if page == "Markets":
         st.subheader("FOB at each crude's own tenor")
         st.caption("No tenor slider needed: with the arrival date fixed, "
                    "each crude's pricing date IS its departure date "
-                   "(arrival - voyage).")
+                   "(arrival - voyage). FOB Spot is today's price for "
+                   "reference; the gap to FOB at departure is the structure.")
         rows = [{
             "Crude": ds.crudes[k].name,
             "Benchmark": ds.crudes[k].benchmark,
             "Diff ($/bbl)": ds.crudes[k].diff_usd_bbl,
             "Departure": o.departure_date,
+            "FOB Spot": round(curves[ds.crudes[k].benchmark].front
+                              + ds.crudes[k].diff_usd_bbl, 2),
             "FOB at departure": round(o.fob_usd_bbl, 2),
         } for k, o in decision.options.items()]
         st.dataframe(pd.DataFrame(rows), hide_index=True)
@@ -304,20 +332,37 @@ elif page == "Freight":
                    "expensive*. The structure **penalises distance** — long "
                    "voyages pay a premium on the curve.")
 
-    df = freight_frame()
-    st.caption("FOB = price at the arrival date (structure-free reference). "
-               "Structure = FOB(departure) - FOB(arrival): the curve effect "
-               "of departing earlier for a longer voyage.")
+    df = freight_frame().sort_values("CIF").reset_index(drop=True)
+    st.caption("The waterfall starts at **FOB Spot** (today's price) and adds "
+               "**Structure** = FOB(departure) − FOB(spot): what the curve "
+               "charges (or pays) for buying at the departure tenor instead "
+               "of today. FOB Spot + Structure = FOB at departure (the real "
+               "price paid, matching the Markets page).")
 
-    st.subheader("Delivered cost composition, all crudes ($/bbl)")
-    st.plotly_chart(stacked_cif_chart(df.sort_values("CIF")),
-                    use_container_width=True)
-
-    st.subheader("CIF waterfall")
-    chosen = st.selectbox("Crude", df.sort_values("CIF")["Crude"])
+    # --- cheapest-crude waterfall, on top --------------------------------
+    cheapest = df.iloc[0]
+    st.subheader(f"CIF waterfall — cheapest delivered: {cheapest['Crude']} "
+                 f"({cheapest['CIF']:.2f} $/bbl)")
+    options = list(df["Crude"])
+    chosen = st.selectbox("Crude", options, index=0)
     row = df[df["Crude"] == chosen].iloc[0]
     st.plotly_chart(cif_waterfall(row), use_container_width=True)
+
+    # --- comparisons across all crudes -----------------------------------
+    st.subheader("Delivered cost composition, all crudes ($/bbl)")
+    st.plotly_chart(stacked_cif_chart(df), use_container_width=True)
     st.dataframe(df.drop(columns="key").round(2), hide_index=True)
+
+    # --- structure cost table --------------------------------------------
+    st.subheader("Structure cost")
+    st.caption("How the forward curve turns today's spot into the price you "
+               "actually pay at departure. Negative structure (contango) "
+               "means the curve subsidises the wait; positive "
+               "(backwardation) means it penalises it.")
+    struct = df[["Crude", "FOB Spot", "FOB at departure", "Structure"]].copy()
+    struct.columns = ["Crude", "FOB Spot ($/bbl)", "FOB at departure ($/bbl)",
+                      "Structure cost ($/bbl)"]
+    st.dataframe(struct.round(2), hide_index=True)
 
 # --------------------------------------------------------------- refinery --
 elif page == "Refinery":
@@ -376,19 +421,23 @@ elif page == "Refinery":
              delta=f"limit {active_config.diesel_sulfur_spec_pct:.2f}%",
              delta_color="off")
 
-    st.subheader("Unit utilisation")
-    st.progress(min(util.cdu_utilisation, 1.0),
-                text=f"CDU: {util.cdu_utilisation:.0%}")
-    if active_config.conversion_unit:
-        u = rep.upgraded_conv_kbd / active_config.conversion_capacity_kbd
-        st.progress(min(u, 1.0),
-                    text=f"{active_config.conversion_unit.upper()}: {u:.0%} "
-                         f"(uplift {rep.conv_uplift_usd_bbl:.2f} $/bbl)")
-    if active_config.coker_capacity_kbd > 0:
-        u = rep.upgraded_coker_kbd / active_config.coker_capacity_kbd
-        st.progress(min(u, 1.0),
-                    text=f"Coker: {u:.0%} "
-                         f"(uplift {rep.coker_uplift_usd_bbl:.2f} $/bbl)")
+    # --- processing-days indicator (option B) -----------------------------
+    # The cargo is a stock (kbbl); CDU is a rate (kb/d). A 1000 kbbl cargo at
+    # a 200 kb/d refinery is simply 5 days of feed -- normal. We surface the
+    # coverage in days and warn only when it becomes operationally unrealistic
+    # (storage, capital tied up, market exposure). `config` is always the
+    # nominal (unscaled) config, so config.cdu_capacity_kbd is the true kb/d
+    # nameplate even in Optimal mode where active_config is scaled.
+    if unit_label == "kbbl":   # Optimal mode: basket is a cargo in kbbl
+        nameplate_cdu = config.cdu_capacity_kbd
+        feed_days = total / nameplate_cdu
+        if feed_days > 15:
+            st.warning(f"⚠️ This cargo is **{feed_days:.1f} days** of feed at "
+                       f"{nameplate_cdu:.0f} kb/d. Above ~15 days, storage and "
+                       "market exposure get unrealistic for a single purchase.")
+        else:
+            st.info(f"This cargo is **{feed_days:.1f} days** of feed at "
+                    f"{nameplate_cdu:.0f} kb/d nameplate CDU.")
     if source == "Manual" and not util.feasible:
         st.error("This basket violates at least one constraint "
                  "(capacity or straight-run sulfur limit).")
@@ -410,6 +459,50 @@ elif page == "Refinery":
     left.plotly_chart(fig, use_container_width=True)
     right.dataframe(bal)
 
+    # --- refinery characteristics -----------------------------------------
+    st.subheader("Refinery characteristics")
+    st.caption("Nameplate capacity (kb/d throughput, independent of cargo "
+               "size), utilisation (feed actually upgraded ÷ capacity over "
+               "the processing window) and the per-barrel uplift each unit "
+               "earns at current prices.")
+    # Capacities shown are NOMINAL (config, kb/d) -- the refinery's true
+    # characteristic. Utilisation is the real run rate, computed against the
+    # scaled config the LP used, so it stays correct regardless of cargo size.
+    char_rows = [{
+        "Unit": "CDU", "Active": "yes",
+        "Capacity (kb/d)": round(config.cdu_capacity_kbd, 1),
+        "Utilisation %": round(100 * util.cdu_utilisation, 1),
+        "Uplift $/bbl": "-",
+    }]
+    if config.conversion_unit:
+        cu = config.conversion_unit.upper()
+        char_rows.append({
+            "Unit": cu, "Active": "yes",
+            "Capacity (kb/d)": round(config.conversion_capacity_kbd, 1),
+            "Utilisation %": round(
+                100 * rep.upgraded_conv_kbd
+                / active_config.conversion_capacity_kbd, 1),
+            "Uplift $/bbl": round(rep.conv_uplift_usd_bbl, 2),
+        })
+    else:
+        char_rows.append({"Unit": "Conversion (FCC/HCU)", "Active": "no",
+                          "Capacity (kb/d)": "-",
+                          "Utilisation %": "-", "Uplift $/bbl": "-"})
+    if config.coker_capacity_kbd > 0:
+        char_rows.append({
+            "Unit": "Coker", "Active": "yes",
+            "Capacity (kb/d)": round(config.coker_capacity_kbd, 1),
+            "Utilisation %": round(
+                100 * rep.upgraded_coker_kbd
+                / active_config.coker_capacity_kbd, 1),
+            "Uplift $/bbl": round(rep.coker_uplift_usd_bbl, 2),
+        })
+    else:
+        char_rows.append({"Unit": "Coker", "Active": "no",
+                          "Capacity (kb/d)": "-",
+                          "Utilisation %": "-", "Uplift $/bbl": "-"})
+    st.dataframe(pd.DataFrame(char_rows), hide_index=True)
+
 # -------------------------------------------------------------- simulator --
 else:
     st.title("Simulator")
@@ -420,7 +513,7 @@ else:
         st.error(decision_error)
         st.stop()
 
-    st.subheader("Options, sorted by net margin")
+    st.subheader("Options, best net margin first")
     st.dataframe(margin_table(), hide_index=True)
     for key, reason in decision.excluded.items():
         st.warning(f"{ds.crudes[key].name} excluded: {reason}")
@@ -437,6 +530,13 @@ else:
     c.metric("Pool sulfur",
              f"{blend_diesel_sulfur(res.basket, ds.crudes):.2f}%")
     bk = dict(res.basket)
+    # Vessel(s) carrying the cargo: each picked crude has its own best vessel.
+    vessels_used = sorted({decision.options[k].freight.vessel_key
+                           for k in bk})
+    st.caption("Vessel(s): " + ", ".join(
+        f"**{ds.crudes[k].name}** → {decision.options[k].freight.vessel_key} "
+        f"({decision.options[k].voyage_days:.0f} d, departs "
+        f"{decision.options[k].departure_date})" for k in bk))
     fig = go.Figure(go.Bar(
         x=[ds.crudes[k].name for k in bk], y=list(bk.values()),
         marker_color="#3b6ea5",
