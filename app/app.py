@@ -522,7 +522,10 @@ elif page == "Refinery":
         char_rows.append({"Unit": "Reformer", "Active": "no",
                           "Capacity (kb/d)": "-",
                           "Utilisation %": "-", "Uplift $/bbl": "-"})
-    st.dataframe(pd.DataFrame(char_rows), hide_index=True)
+    char_df = pd.DataFrame(char_rows)
+    for col in ["Capacity (kb/d)", "Utilisation %", "Uplift $/bbl"]:
+        char_df[col] = char_df[col].astype(str)
+    st.dataframe(char_df, hide_index=True)
 
 # -------------------------------------------------------------- simulator --
 else:
