@@ -534,7 +534,12 @@ else:
                "each crude priced at its own departure tenor, LP allocation "
                "against product prices at arrival.")
     if decision is None:
-        st.error(decision_error)
+        st.error(
+            "No deliverable crude for the selected cargo size and discharge port. "
+            "The selected cargo is probably larger than the maximum vessel allowed "
+            "at the discharge port. Try reducing the cargo volume.")
+        with st.expander("Technical details"):
+            st.write(decision_error)
         st.stop()
 
     st.subheader("Options, best net margin first")
