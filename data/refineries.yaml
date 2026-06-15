@@ -7,7 +7,7 @@
 # spec (10-50 ppm), which is met downstream by hydrotreating (not modelled).
 
 dangote:
-  name: "Dangote Refinery"
+  name: "Lekki, Nigeria — Conversion (FCC)"
   port: lekki
   max_vessel: vlcc
   product_market: wam
@@ -21,7 +21,7 @@ dangote:
       reformer_capacity_kbd: 120
 
 rotterdam:
-  name: "Rotterdam (archetype)"
+  name: "Rotterdam, Netherlands — Hydroskimming/FCC"
   port: rotterdam
   max_vessel: suezmax
   product_market: nwe
@@ -41,7 +41,7 @@ rotterdam:
       reformer_capacity_kbd: 40
 
 singapore:
-  name: "Singapore (archetype)"
+  name: "Singapore — Hydrocracking/Coking"
   port: singapore
   max_vessel: vlcc
   product_market: sing
@@ -62,7 +62,7 @@ singapore:
       reformer_capacity_kbd: 60
 
 marseille:
-  name: "Marseille (Fos-sur-Mer, sandbox)"
+  name: "Fos-sur-Mer, France — Conversion (FCC)"
   port: fos
   max_vessel: suezmax
   product_market: med
@@ -80,7 +80,7 @@ marseille:
       reformer_capacity_kbd: 40
 
 map_ta_phut:
-  name: "Map Ta Phut (Thailand, sandbox)"
+  name: "Map Ta Phut, Thailand — Conversion (FCC)"
   port: map_ta_phut
   max_vessel: vlcc
   product_market: sing
@@ -95,7 +95,7 @@ map_ta_phut:
       reformer_capacity_kbd: 50
 
 lytton:
-  name: "Lytton (Brisbane, Australia, sandbox)"
+  name: "Brisbane, Australia — Conversion (FCC)"
   port: brisbane
   max_vessel: suezmax
   product_market: apac
@@ -110,7 +110,7 @@ lytton:
       reformer_capacity_kbd: 25
 
 galveston_bay:
-  name: "Galveston Bay (Texas, USA, sandbox)"
+  name: "Galveston Bay, USA — Conversion (FCC + Coker)"
   port: galveston
   max_vessel: vlcc
   product_market: usgc
@@ -125,7 +125,7 @@ galveston_bay:
       reformer_capacity_kbd: 110
 
 sao_sebastiao:
-  name: "Sao Sebastiao (Brazil, sandbox)"
+  name: "São Sébastião, Brazil — Conversion (FCC + Coker)"
   port: sao_sebastiao
   max_vessel: suezmax
   product_market: latam
@@ -138,4 +138,18 @@ sao_sebastiao:
       coker_capacity_kbd: 50
       diesel_sulfur_spec_pct: 0.50
       reformer_capacity_kbd: 55
-      
+
+ruwais:
+  name: "Ruwais, UAE — Conversion (FCC + Coker)"
+  port: ruwais
+  max_vessel: vlcc
+  product_market: meast
+  sandbox: true
+  configs:
+    default:
+      cdu_capacity_kbd: 420
+      conversion_unit: fcc
+      conversion_capacity_kbd: 140
+      coker_capacity_kbd: 70
+      diesel_sulfur_spec_pct: 0.50
+      reformer_capacity_kbd: 90

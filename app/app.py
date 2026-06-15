@@ -547,8 +547,8 @@ elif page == "Reference data":
         st.subheader("Refineries and configurations")
         st.caption("Each refinery has a discharge port, a max vessel the port "
                    "accepts, a regional product market, and one or more "
-                   "configurations. Marseille is a live sandbox (its config "
-                   "is built from the sidebar, not shown here).")
+                   "configurations. Sandbox refineries show their default "
+                   "config here; their units are editable live in the sidebar.")
         rows = []
         for rk, r in ds.refineries.items():
             for ck, cfg in r.configs.items():
@@ -668,5 +668,3 @@ else:
     st.dataframe(pd.DataFrame(
         [{"Constraint": k, "Dual": round(v, 3)}
          for k, v in res.shadow_prices.items()]), hide_index=True)
-    
-    

@@ -82,3 +82,14 @@ latam:  # Latin America
     diesel: 17.5
     vgo: -6.0
     residue: -21.0
+
+meast:  # Middle East (Arabian Gulf)
+  benchmark: brent
+  cracks:
+    lpg: -14.0
+    naphtha: 3.0
+    gasoline: 12.0
+    kero: 14.5
+    diesel: 16.5
+    vgo: -5.5
+    residue: -20.0
