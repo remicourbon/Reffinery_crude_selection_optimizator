@@ -1,6 +1,19 @@
 # Vessel classes. typical_ws_pct is the default negotiated Worldscale
 # percentage -- overridable in-app (the user's negotiated rate).
 # port_days: total days in port (load + discharge), added to sea time.
+# Smaller ships carry less but pay a higher Worldscale % (diseconomy of scale).
+
+mr:
+  cargo_kbbl: 350
+  speed_knots: 13.0
+  typical_ws_pct: 170
+  port_days: 3
+
+panamax:
+  cargo_kbbl: 500
+  speed_knots: 13.0
+  typical_ws_pct: 145
+  port_days: 3
 
 aframax:
   cargo_kbbl: 700

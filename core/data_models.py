@@ -131,6 +131,7 @@ class Refinery:
     max_vessel: str
     product_market: str
     configs: Mapping[str, RefineryConfig]
+    sandbox: bool = False         # True = units editable live in the app
 
     def __post_init__(self):
         f = "refineries.yaml"
@@ -369,4 +370,3 @@ def load_dataset(data_dir: str | Path) -> Dataset:
     )
     ds.validate_referential_integrity()
     return ds
-

@@ -87,3 +87,89 @@ novorossiysk-rotterdam:
 novorossiysk-singapore:
   distance_nm: 8000
   ws_flat_rate: 16.5
+arzew-brisbane:
+  distance_nm: 11800
+  ws_flat_rate: 22.5
+arzew-galveston:
+  distance_nm: 5200
+  ws_flat_rate: 12.5
+arzew-map_ta_phut:
+  distance_nm: 8400
+  ws_flat_rate: 17.2
+arzew-sao_sebastiao:
+  distance_nm: 4600
+  ws_flat_rate: 11.5
+basrah-brisbane:
+  distance_nm: 7400
+  ws_flat_rate: 15.8
+basrah-galveston:
+  distance_nm: 9600
+  ws_flat_rate: 19.0
+basrah-map_ta_phut:
+  distance_nm: 4200
+  ws_flat_rate: 10.2
+basrah-sao_sebastiao:
+  distance_nm: 8200
+  ws_flat_rate: 16.8
+bonny-brisbane:
+  distance_nm: 9800
+  ws_flat_rate: 19.5
+bonny-galveston:
+  distance_nm: 6100
+  ws_flat_rate: 14.0
+bonny-map_ta_phut:
+  distance_nm: 8700
+  ws_flat_rate: 17.6
+bonny-sao_sebastiao:
+  distance_nm: 3900
+  ws_flat_rate: 10.0
+brisbane-corpus_christi:
+  distance_nm: 9300
+  ws_flat_rate: 18.6
+brisbane-hound_point:
+  distance_nm: 12200
+  ws_flat_rate: 23.0
+brisbane-novorossiysk:
+  distance_nm: 10400
+  ws_flat_rate: 20.5
+brisbane-ras_tanura:
+  distance_nm: 7100
+  ws_flat_rate: 15.4
+corpus_christi-galveston:
+  distance_nm: 350
+  ws_flat_rate: 3.0
+corpus_christi-map_ta_phut:
+  distance_nm: 10800
+  ws_flat_rate: 20.8
+corpus_christi-sao_sebastiao:
+  distance_nm: 5600
+  ws_flat_rate: 13.2
+galveston-hound_point:
+  distance_nm: 4900
+  ws_flat_rate: 11.8
+galveston-novorossiysk:
+  distance_nm: 6600
+  ws_flat_rate: 15.0
+galveston-ras_tanura:
+  distance_nm: 9700
+  ws_flat_rate: 19.2
+hound_point-map_ta_phut:
+  distance_nm: 8500
+  ws_flat_rate: 17.4
+hound_point-sao_sebastiao:
+  distance_nm: 5400
+  ws_flat_rate: 12.8
+map_ta_phut-novorossiysk:
+  distance_nm: 8300
+  ws_flat_rate: 17.0
+map_ta_phut-ras_tanura:
+  distance_nm: 4000
+  ws_flat_rate: 9.8
+novorossiysk-sao_sebastiao:
+  distance_nm: 7000
+  ws_flat_rate: 15.2
+ras_tanura-sao_sebastiao:
+  distance_nm: 7800
+  ws_flat_rate: 16.2
+
+  

@@ -53,16 +53,16 @@ refinery_key = st.sidebar.selectbox(
     "Refinery", list(ds.refineries), format_func=lambda k: ds.refineries[k].name)
 refinery = ds.refineries[refinery_key]
 
-# Marseille is a live sandbox: its units are built from widgets, not YAML.
-SANDBOX_KEY = "marseille"
-is_sandbox = refinery_key == SANDBOX_KEY
+# Any refinery flagged `sandbox: true` in refineries.yaml is a live sandbox:
+# its units are built from widgets, not read from a fixed YAML config.
+is_sandbox = refinery.sandbox
 config_override = None
 
 if is_sandbox:
     base = refinery.configs["default"]
     st.sidebar.caption("Sandbox: toggle units, set capacities and the "
                        "straight-run sulfur limit. Changes are live.")
-    cdu_cap = st.sidebar.slider("CDU capacity (kb/d)", 50, 500,
+    cdu_cap = st.sidebar.slider("CDU capacity (kb/d)", 50, 700,
                                 int(base.cdu_capacity_kbd), step=10)
 
     conv_on = st.sidebar.checkbox("Conversion unit", value=True)
@@ -92,7 +92,7 @@ if is_sandbox:
              "can process. Lower = stricter = fewer sour crudes allowed.")
 
     config_override = RefineryConfig(
-        key="sandbox", refinery_key=SANDBOX_KEY, cdu_capacity_kbd=float(cdu_cap),
+        key="sandbox", refinery_key=refinery_key, cdu_capacity_kbd=float(cdu_cap),
         conversion_unit=conv_unit, conversion_capacity_kbd=conv_cap,
         coker_capacity_kbd=coker_cap, diesel_sulfur_spec_pct=sulfur_spec,
         reformer_capacity_kbd=reformer_cap)

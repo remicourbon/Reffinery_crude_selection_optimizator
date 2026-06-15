@@ -18,6 +18,7 @@ dangote:
       conversion_capacity_kbd: 220
       coker_capacity_kbd: 0
       diesel_sulfur_spec_pct: 0.60
+      reformer_capacity_kbd: 120
 
 rotterdam:
   name: "Rotterdam (archetype)"
@@ -37,6 +38,7 @@ rotterdam:
       conversion_capacity_kbd: 60
       coker_capacity_kbd: 0
       diesel_sulfur_spec_pct: 0.35
+      reformer_capacity_kbd: 40
 
 singapore:
   name: "Singapore (archetype)"
@@ -50,18 +52,21 @@ singapore:
       conversion_capacity_kbd: 90
       coker_capacity_kbd: 0
       diesel_sulfur_spec_pct: 0.45
+      reformer_capacity_kbd: 60
     fcc_coking:
       cdu_capacity_kbd: 300
       conversion_unit: fcc
       conversion_capacity_kbd: 80
       coker_capacity_kbd: 60
       diesel_sulfur_spec_pct: 0.50
+      reformer_capacity_kbd: 60
 
 marseille:
   name: "Marseille (Fos-sur-Mer, sandbox)"
   port: fos
   max_vessel: suezmax
   product_market: med
+  sandbox: true
   configs:
     # Baseline config; in the app, Marseille's units are fully editable
     # (on/off, capacity, straight-run sulfur limit). These YAML values are
@@ -72,3 +77,65 @@ marseille:
       conversion_capacity_kbd: 75
       coker_capacity_kbd: 0
       diesel_sulfur_spec_pct: 0.40
+      reformer_capacity_kbd: 40
+
+map_ta_phut:
+  name: "Map Ta Phut (Thailand, sandbox)"
+  port: map_ta_phut
+  max_vessel: vlcc
+  product_market: sing
+  sandbox: true
+  configs:
+    default:
+      cdu_capacity_kbd: 280
+      conversion_unit: fcc
+      conversion_capacity_kbd: 90
+      coker_capacity_kbd: 0
+      diesel_sulfur_spec_pct: 0.45
+      reformer_capacity_kbd: 50
+
+lytton:
+  name: "Lytton (Brisbane, Australia, sandbox)"
+  port: brisbane
+  max_vessel: suezmax
+  product_market: apac
+  sandbox: true
+  configs:
+    default:
+      cdu_capacity_kbd: 110
+      conversion_unit: fcc
+      conversion_capacity_kbd: 35
+      coker_capacity_kbd: 0
+      diesel_sulfur_spec_pct: 0.30
+      reformer_capacity_kbd: 25
+
+galveston_bay:
+  name: "Galveston Bay (Texas, USA, sandbox)"
+  port: galveston
+  max_vessel: vlcc
+  product_market: usgc
+  sandbox: true
+  configs:
+    default:
+      cdu_capacity_kbd: 560
+      conversion_unit: fcc
+      conversion_capacity_kbd: 180
+      coker_capacity_kbd: 90
+      diesel_sulfur_spec_pct: 0.60
+      reformer_capacity_kbd: 110
+
+sao_sebastiao:
+  name: "Sao Sebastiao (Brazil, sandbox)"
+  port: sao_sebastiao
+  max_vessel: suezmax
+  product_market: latam
+  sandbox: true
+  configs:
+    default:
+      cdu_capacity_kbd: 290
+      conversion_unit: fcc
+      conversion_capacity_kbd: 95
+      coker_capacity_kbd: 50
+      diesel_sulfur_spec_pct: 0.50
+      reformer_capacity_kbd: 55
+      

@@ -49,3 +49,36 @@ med:   # Mediterranean
     diesel: 17.0
     vgo: -6.0
     residue: -21.0
+
+apac:   # Asia-Pacific (Australia)
+  benchmark: brent
+  cracks:
+    lpg: -15.0
+    naphtha: 2.5
+    gasoline: 13.5
+    kero: 15.0
+    diesel: 18.0
+    vgo: -6.0
+    residue: -22.0
+
+usgc:   # US Gulf Coast
+  benchmark: wti
+  cracks:
+    lpg: -16.0
+    naphtha: 1.0
+    gasoline: 12.5
+    kero: 13.0
+    diesel: 17.0
+    vgo: -5.0
+    residue: -23.0
+
+latam:  # Latin America
+  benchmark: brent
+  cracks:
+    lpg: -15.0
+    naphtha: 2.0
+    gasoline: 12.0
+    kero: 14.0
+    diesel: 17.5
+    vgo: -6.0
+    residue: -21.0
