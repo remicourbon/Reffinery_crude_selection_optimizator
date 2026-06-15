@@ -63,7 +63,7 @@ arab_light:
   api: 33.0
   sulfur_pct: 1.80
   benchmark: brent
-  diff_usd_bbl: -1.50
+  diff_usd_bbl: -3.50
   fob_port: ras_tanura
   yields:
     lpg: 0.02
@@ -81,7 +81,7 @@ basrah_medium:
   api: 27.0
   sulfur_pct: 3.00
   benchmark: brent
-  diff_usd_bbl: -4.00
+  diff_usd_bbl: -7.50
   fob_port: basrah
   yields:
     lpg: 0.01
