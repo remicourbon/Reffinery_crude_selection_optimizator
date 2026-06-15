@@ -5,7 +5,7 @@
 # diff_usd_bbl: static differential vs the benchmark futures curve (editable in-app).
 
 bonny_light:
-  name: "Bonny Light"
+  name: "Bonny Light, Nigeria"
   api: 35.3
   sulfur_pct: 0.15
   benchmark: brent
@@ -23,7 +23,7 @@ bonny_light:
   diesel_sulfur_pct: 0.08
 
 wti_midland:
-  name: "WTI Midland"
+  name: "WTI Midland, Texas"
   api: 42.0
   sulfur_pct: 0.20
   benchmark: wti
@@ -41,7 +41,7 @@ wti_midland:
   diesel_sulfur_pct: 0.05
 
 forties:
-  name: "Forties Blend"
+  name: "Forties Blend, UK"
   api: 40.3
   sulfur_pct: 0.60
   benchmark: brent
@@ -59,7 +59,7 @@ forties:
   diesel_sulfur_pct: 0.15
 
 arab_light:
-  name: "Arab Light"
+  name: "Arab Light, Saudi Arabia"
   api: 33.0
   sulfur_pct: 1.80
   benchmark: brent
@@ -77,7 +77,7 @@ arab_light:
   diesel_sulfur_pct: 0.90
 
 basrah_medium:
-  name: "Basrah Medium"
+  name: "Basrah Medium, Iraq"
   api: 27.0
   sulfur_pct: 3.00
   benchmark: brent
@@ -95,7 +95,7 @@ basrah_medium:
   diesel_sulfur_pct: 1.30
 
 saharan_blend:
-  name: "Saharan Blend"
+  name: "Saharan Blend, Algeria"
   api: 45.3
   sulfur_pct: 0.09
   benchmark: brent
@@ -113,7 +113,7 @@ saharan_blend:
   diesel_sulfur_pct: 0.04
 
 cpc_blend:
-  name: "CPC Blend"
+  name: "CPC Blend, Russia"
   api: 45.0
   sulfur_pct: 0.55
   benchmark: brent
