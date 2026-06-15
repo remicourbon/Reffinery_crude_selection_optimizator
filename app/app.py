@@ -115,7 +115,7 @@ ws_pct = None if ws_user == 100 else float(ws_user)
 
 st.sidebar.header("Curves")
 use_live = st.sidebar.checkbox("Fetch live futures (yfinance)", value=False)
-DEFAULT_SPOTS = {"brent": 80.0, "wti": 76.0}
+DEFAULT_SPOTS = {"brent": 94.0, "wti": 100.5}
 DEFAULT_SLOPES = {"brent": 0.30, "wti": 0.30}
 if use_live:
     st.sidebar.caption("Live Brent/WTI contracts; manual inputs hidden. "
@@ -123,8 +123,8 @@ if use_live:
     spots, slopes = DEFAULT_SPOTS, DEFAULT_SLOPES
 else:
     c1, c2 = st.sidebar.columns(2)
-    spots = {"brent": c1.number_input("Brent spot", value=80.0, step=0.5),
-             "wti": c2.number_input("WTI spot", value=76.0, step=0.5)}
+    spots = {"brent": c1.number_input("Brent spot", value=94.0, step=0.5),
+             "wti": c2.number_input("WTI spot", value=100.5, step=0.5)}
     slopes = {"brent": c1.number_input("Brent $/mo", value=0.30, step=0.10,
                                        help=">0 contango, <0 backwardation"),
               "wti": c2.number_input("WTI $/mo", value=0.30, step=0.10)}
