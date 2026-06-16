@@ -108,7 +108,7 @@ arrival = st.sidebar.date_input("Target arrival date",
                                 min_value=date.today())
 volume = st.sidebar.number_input("Cargo volume (kbbl)", min_value=50.0,
                                  max_value=2000.0, value=650.0, step=50.0)
-ws_user = st.sidebar.slider("Negotiated Worldscale (%)", 30, 400, 100,
+ws_user = st.sidebar.slider("Negotiated Worldscale (%)", 30, 400, 150,
                             help="Applied to all vessel classes; 100 keeps "
                                  "each class's typical rate.")
 ws_pct = None if ws_user == 100 else float(ws_user)
