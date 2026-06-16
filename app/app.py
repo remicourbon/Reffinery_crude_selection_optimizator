@@ -180,7 +180,7 @@ def margin_table() -> pd.DataFrame:
             "Vessel": o.freight.vessel_key,
             "Departure": o.departure_date,
             "Voyage (d)": round(o.voyage_days, 1),
-            "Prix maintenant": round(prix_maintenant, 2),
+            "FOB": round(prix_maintenant, 2),
             "Structure": round(structure, 2),
             "Freight": round(o.freight.freight_usd_bbl, 2),
             "Financing": round(o.financing_usd_bbl, 2),
