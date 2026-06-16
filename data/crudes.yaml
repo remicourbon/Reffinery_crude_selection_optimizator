@@ -9,7 +9,7 @@ bonny_light:
   api: 35.3
   sulfur_pct: 0.15
   benchmark: brent
-  diff_usd_bbl: 0.50
+  diff_usd_bbl: 1.50
   fob_port: bonny
   yields:
     lpg: 0.03
@@ -27,7 +27,7 @@ wti_midland:
   api: 42.0
   sulfur_pct: 0.20
   benchmark: wti
-  diff_usd_bbl: 0.40
+  diff_usd_bbl: 1
   fob_port: corpus_christi
   yields:
     lpg: 0.04
