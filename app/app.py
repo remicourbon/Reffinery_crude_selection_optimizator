@@ -145,6 +145,15 @@ prices_arrival = product_prices(ds.product_markets[refinery.product_market],
 def margin_table() -> pd.DataFrame:
     """Per-crude option table, best net margin first.
 
+    Prix maintenant is the crude's FOB spot price today:
+    benchmark front month + static crude differential.
+
+    Structure is the forward curve effect:
+    Structure = FOB at departure - Prix maintenant.
+
+    Therefore:
+    Prix maintenant + Structure = FOB at departure.
+
     Net margin is computed on TOTAL PRODUCT WORTH (straight-run GPW + the
     upgrading gain this refinery's units would extract from that crude), not
     on bare GPW -- otherwise a conversion refinery's economics look wrong.
@@ -153,16 +162,26 @@ def margin_table() -> pd.DataFrame:
     """
     rows = []
     for key, o in decision.options.items():
+        crude = ds.crudes[key]
+
+        # Price today: benchmark front month + crude differential.
+        prix_maintenant = curves[crude.benchmark].front + crude.diff_usd_bbl
+
+        # Forward curve effect between today and the crude's departure date.
+        structure = o.fob_usd_bbl - prix_maintenant
+
         single = {key: decision.volume_kbbl}
         rep = apply_upgrading(single, ds.crudes, decision.scaled_config,
                               ds.conversion_units, prices_arrival)
         tpw = rep.total_value_kusd_day / decision.volume_kbbl  # $/bbl
+
         rows.append({
-            "Crude": ds.crudes[key].name,
+            "Crude": crude.name,
             "Vessel": o.freight.vessel_key,
             "Departure": o.departure_date,
             "Voyage (d)": round(o.voyage_days, 1),
-            "FOB at departure": round(o.fob_usd_bbl, 2),
+            "Prix maintenant": round(prix_maintenant, 2),
+            "Structure": round(structure, 2),
             "Freight": round(o.freight.freight_usd_bbl, 2),
             "Financing": round(o.financing_usd_bbl, 2),
             "Ins.+loss": round(o.insurance_usd_bbl + o.losses_usd_bbl, 2),
@@ -170,6 +189,7 @@ def margin_table() -> pd.DataFrame:
             "Total product worth": round(tpw, 2),
             "Net margin $/bbl": round(tpw - o.cif_usd_bbl, 2),
         })
+
     return pd.DataFrame(rows).sort_values("Net margin $/bbl", ascending=False)
 
 
@@ -250,8 +270,8 @@ def freight_frame() -> pd.DataFrame:
     The waterfall starts at FOB Spot (today's price, tenor 0 -- the tangible
     screen price) and adds Structure as a visible bar: Structure =
     FOB(departure) - FOB(spot), the curve effect of buying at the departure
-    tenor rather than today. Negative in contango (subsidises distance),
-    positive in backwardation. The columns FOB Spot + Structure reconstruct
+    tenor rather than today. Positive in contango (subsidises distance),
+    Negative in backwardation. The columns FOB Spot + Structure reconstruct
     FOB at departure, which is the real price paid and matches the Markets
     page.
     """
@@ -362,8 +382,8 @@ elif page == "Freight":
     # --- structure cost table --------------------------------------------
     st.subheader("Structure cost")
     st.caption("How the forward curve turns today's spot into the price you "
-               "actually pay at departure. Negative structure (contango) "
-               "means the curve subsidises the wait; positive "
+               "actually pay at departure. Positive structure (contango) "
+               "means the curve subsidises the wait; negative "
                "(backwardation) means it penalises it.")
     struct = df[["Crude", "FOB Spot", "FOB at departure", "Structure"]].copy()
     struct.columns = ["Crude", "FOB Spot ($/bbl)", "FOB at departure ($/bbl)",
@@ -665,5 +685,4 @@ else:
     st.dataframe(pd.DataFrame(
         [{"Constraint": k, "Dual": round(v, 3)}
          for k, v in res.shadow_prices.items()]), hide_index=True)
-    
     
