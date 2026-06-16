@@ -7,28 +7,28 @@ mr:
   cargo_kbbl: 350
   speed_knots: 13.0
   typical_ws_pct: 170
-  port_days: 3
+  port_days: 1,5
 
 panamax:
   cargo_kbbl: 500
   speed_knots: 13.0
   typical_ws_pct: 145
-  port_days: 3
+  port_days: 1,5
 
 aframax:
   cargo_kbbl: 700
   speed_knots: 12.5
   typical_ws_pct: 120
-  port_days: 4
+  port_days: 2
 
 suezmax:
   cargo_kbbl: 1000
   speed_knots: 12.5
   typical_ws_pct: 95
-  port_days: 4
+  port_days: 2
 
 vlcc:
   cargo_kbbl: 2000
   speed_knots: 12.0
   typical_ws_pct: 60
-  port_days: 5
+  port_days: 3,5

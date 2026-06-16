@@ -108,26 +108,26 @@ arrival = st.sidebar.date_input("Target arrival date",
                                 min_value=date.today())
 volume = st.sidebar.number_input("Cargo volume (kbbl)", min_value=50.0,
                                  max_value=2000.0, value=650.0, step=50.0)
-ws_user = st.sidebar.slider("Negotiated Worldscale (%)", 30, 200, 100,
+ws_user = st.sidebar.slider("Negotiated Worldscale (%)", 30, 400, 100,
                             help="Applied to all vessel classes; 100 keeps "
                                  "each class's typical rate.")
 ws_pct = None if ws_user == 100 else float(ws_user)
 
 st.sidebar.header("Curves")
 use_live = st.sidebar.checkbox("Fetch live futures (yfinance)", value=False)
-DEFAULT_SPOTS = {"brent": 94.0, "wti": 100.5}
-DEFAULT_SLOPES = {"brent": 0.30, "wti": 0.30}
+DEFAULT_SPOTS = {"brent": 83.0, "wti": 81.0}
+DEFAULT_SLOPES = {"brent": -0.50, "wti": -0.70}
 if use_live:
     st.sidebar.caption("Live Brent/WTI contracts; manual inputs hidden. "
                        "Falls back to defaults if the fetch fails.")
     spots, slopes = DEFAULT_SPOTS, DEFAULT_SLOPES
 else:
     c1, c2 = st.sidebar.columns(2)
-    spots = {"brent": c1.number_input("Brent spot", value=94.0, step=0.5),
-             "wti": c2.number_input("WTI spot", value=100.5, step=0.5)}
-    slopes = {"brent": c1.number_input("Brent $/mo", value=0.30, step=0.10,
+    spots = {"brent": c1.number_input("Brent spot", value=83.0, step=0.5),
+             "wti": c2.number_input("WTI spot", value=81.0, step=0.5)}
+    slopes = {"brent": c1.number_input("Brent $/mo", value=-0.50, step=0.10,
                                        help=">0 contango, <0 backwardation"),
-              "wti": c2.number_input("WTI $/mo", value=0.30, step=0.10)}
+              "wti": c2.number_input("WTI $/mo", value=-0.70, step=0.10)}
 curves = benchmark_curves(date.today(), spots, slopes, use_live=use_live)
 
 # One evaluation shared by Markets / Freight / Simulator.
@@ -291,19 +291,16 @@ if page == "Markets":
     st.plotly_chart(fig, use_container_width=True)
 
     if decision:
-        st.subheader("FOB at each crude's own tenor")
-        st.caption("No tenor slider needed: with the arrival date fixed, "
-                   "each crude's pricing date IS its departure date "
-                   "(arrival - voyage). FOB Spot is today's price for "
-                   "reference; the gap to FOB at departure is the structure.")
+        st.subheader("FOB Spot per crude")
+        st.caption("FOB Spot is each crude's price today (tenor 0): the "
+                   "benchmark front month plus the crude's static "
+                   "differential.")
         rows = [{
             "Crude": ds.crudes[k].name,
             "Benchmark": ds.crudes[k].benchmark,
             "Diff ($/bbl)": ds.crudes[k].diff_usd_bbl,
-            "Departure": o.departure_date,
             "FOB Spot": round(curves[ds.crudes[k].benchmark].front
                               + ds.crudes[k].diff_usd_bbl, 2),
-            "FOB at departure": round(o.fob_usd_bbl, 2),
         } for k, o in decision.options.items()]
         st.dataframe(pd.DataFrame(rows), hide_index=True)
     elif decision_error:
@@ -668,3 +665,5 @@ else:
     st.dataframe(pd.DataFrame(
         [{"Constraint": k, "Dual": round(v, 3)}
          for k, v in res.shadow_prices.items()]), hide_index=True)
+    
+    
